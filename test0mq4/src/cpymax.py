@@ -1,7 +1,6 @@
 import concore
 import time
 concore.delay = 0.01
-concore.default_maxtime(100)
 #Nsim = 100
 init_simtime_u = "[0.0, 0.0, 0.0]"
 init_simtime_ym = "[0.0, 0.0, 0.0]"

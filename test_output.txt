@@ -1,0 +1,46 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\param\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\GSOC\concore
+configfile: pytest.ini
+plugins: anyio-4.12.1, cov-7.0.0, flask-1.3.0
+collecting ... collected 36 items
+
+tests/test_concore.py::TestSafeLiteralEval::test_reads_dictionary_from_file PASSED [  2%]
+tests/test_concore.py::TestSafeLiteralEval::test_returns_default_when_file_missing PASSED [  5%]
+tests/test_concore.py::TestSafeLiteralEval::test_returns_default_for_empty_file PASSED [  8%]
+tests/test_concore.py::TestTryparam::test_returns_existing_parameter PASSED [ 11%]
+tests/test_concore.py::TestTryparam::test_returns_default_for_missing_parameter PASSED [ 13%]
+tests/test_concore.py::TestZeroMQPort::test_class_is_defined PASSED      [ 16%]
+tests/test_concore.py::TestZMQContextLifecycle::test_context_created_lazily PASSED [ 19%]
+tests/test_concore.py::TestZMQContextLifecycle::test_single_context_shared_across_calls PASSED [ 22%]
+tests/test_concore.py::TestZMQContextLifecycle::test_terminate_resets_context_to_none PASSED [ 25%]
+tests/test_concore.py::TestZMQContextLifecycle::test_context_recreated_after_reset PASSED [ 27%]
+tests/test_concore.py::TestZMQContextLifecycle::test_terminate_cleans_up_orphaned_context PASSED [ 30%]
+tests/test_concore.py::TestDefaultConfiguration::test_default_input_path PASSED [ 33%]
+tests/test_concore.py::TestDefaultConfiguration::test_default_output_path PASSED [ 36%]
+tests/test_concore.py::TestPublicAPI::test_module_imports_successfully PASSED [ 38%]
+tests/test_concore.py::TestPublicAPI::test_core_functions_exist PASSED   [ 41%]
+tests/test_concore.py::TestNumpyConversion::test_convert_scalar PASSED   [ 44%]
+tests/test_concore.py::TestNumpyConversion::test_convert_list_and_dict PASSED [ 47%]
+tests/test_concore.py::TestInitVal::test_initval_updates_simtime PASSED  [ 50%]
+tests/test_concore.py::TestInitVal::test_initval_handles_bad_input PASSED [ 52%]
+tests/test_concore.py::TestDefaultMaxTime::test_uses_file_value PASSED   [ 55%]
+tests/test_concore.py::TestDefaultMaxTime::test_uses_default_when_missing PASSED [ 58%]
+tests/test_concore.py::TestUnchanged::test_unchanged_returns_true_if_same PASSED [ 61%]
+tests/test_concore.py::TestUnchanged::test_unchanged_returns_false_if_diff PASSED [ 63%]
+tests/test_concore.py::TestParseParams::test_simple_key_value_pairs PASSED [ 66%]
+tests/test_concore.py::TestParseParams::test_preserves_whitespace_in_values PASSED [ 69%]
+tests/test_concore.py::TestParseParams::test_embedded_equals_in_value PASSED [ 72%]
+tests/test_concore.py::TestParseParams::test_numeric_and_list_coercion PASSED [ 75%]
+tests/test_concore.py::TestParseParams::test_dict_literal_backward_compatibility PASSED [ 77%]
+tests/test_concore.py::TestParseParams::test_windows_quoted_input PASSED [ 80%]
+tests/test_concore.py::TestWriteZMQ::test_write_converts_numpy_types_for_zmq PASSED [ 83%]
+tests/test_concore.py::TestWriteZMQ::test_zmq_write_read_roundtrip PASSED [ 86%]
+tests/test_concore.py::TestSimtimeNotMutatedByWrite::test_single_file_write_does_not_mutate_simtime PASSED [ 88%]
+tests/test_concore.py::TestSimtimeNotMutatedByWrite::test_single_zmq_write_does_not_mutate_simtime PASSED [ 91%]
+tests/test_concore.py::TestSimtimeNotMutatedByWrite::test_multi_port_file_writes_share_same_timestamp PASSED [ 94%]
+tests/test_concore.py::TestSimtimeNotMutatedByWrite::test_multi_port_zmq_writes_share_same_timestamp PASSED [ 97%]
+tests/test_concore.py::TestSimtimeNotMutatedByWrite::test_write_timestamp_matches_cpp_semantics PASSED [100%]
+
+============================= 36 passed in 0.20s ==============================

@@ -4,6 +4,10 @@ import concore
 
 print("funbody using ZMQ via concore")
 
+# Standalone ZMQ ports for testing
+PORT_NAME_F2_F1 = "F2_F1"
+PORT_F2_F1 = "5556"
+
 # Initialize ZMQ REP port using concore
 concore.init_zmq_port(
     port_name=PORT_NAME_F2_F1,
@@ -23,13 +27,19 @@ u_data_values = concore.initval(init_simtime_u_str)
 ym_data_values = concore.initval(init_simtime_ym_str)
 
 print(f"Initial u_data_values: {u_data_values}, ym_data_values: {ym_data_values}")
-print(f"Max time: {concore.maxtime}")
+concore.maxtime = 100
+print(f"Max time overridden to: {concore.maxtime}")
 
 while concore.simtime < concore.maxtime:
     received_u_result = concore.read(PORT_NAME_F2_F1, "u_signal", init_simtime_u_str)
-    received_u_data = received_u_result[0] if isinstance(received_u_result, tuple) else received_u_result
+    if isinstance(received_u_result, tuple):
+        received_u_data = received_u_result[0]
+        ok = received_u_result[1]
+    else:
+        received_u_data = received_u_result
+        ok = True
 
-    if not (isinstance(received_u_data, list) and len(received_u_data) > 0):
+    if not ok or not (isinstance(received_u_data, list) and len(received_u_data) > 0):
         print(f"Error or invalid data received via ZMQ: {received_u_data}. Skipping iteration.")
         time.sleep(concore.delay) 
         continue 
@@ -49,11 +59,10 @@ while concore.simtime < concore.maxtime:
     # Take a numeric snapshot of the current simulation time to avoid
     # inadvertently sharing a reference with concore.simtime.
     old_concore_simtime = float(concore.simtime)
-    while concore.unchanged() or concore.simtime <= old_concore_simtime:
-        # Assuming concore.iport['Y2'] is a file port (e.g., from pmpymax.py)
-        ym_result = concore.read(concore.iport['Y2'], "ym", init_simtime_ym_str)
-        ym_data_values = ym_result[0] if isinstance(ym_result, tuple) else ym_result
-        # time.sleep(concore.delay) # Optional delay
+    
+    # In a full system, this would wait for file updates from pmpymax
+    # For standalone ZMQ testing, we'll mock the 'ym' calculation
+    ym_data_values = [v * 2 for v in u_data_values]
 
     ym_full_to_send = [concore.simtime] + ym_data_values
     
