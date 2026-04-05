@@ -182,13 +182,9 @@ MATLABEXE = os.environ.get("CONCORE_MATLABEXE", "matlab")    #Ubuntu/macOS matla
 MATLABWIN = os.environ.get("CONCORE_MATLABWIN", "matlab")    #Windows matlab
 OCTAVEEXE = os.environ.get("CONCORE_OCTAVEEXE", "octave")    #Ubuntu/macOS octave
 OCTAVEWIN = os.environ.get("CONCORE_OCTAVEWIN", "octave")    #Windows octave
-JAVACEXE  = os.environ.get("CONCORE_JAVACEXE", "javac")      #Ubuntu/macOS javac
-JAVACWIN  = os.environ.get("CONCORE_JAVACWIN", "javac")      #Windows javac
-JAVAEXE   = os.environ.get("CONCORE_JAVAEXE", "java")        #Ubuntu/macOS java
-JAVAWIN   = os.environ.get("CONCORE_JAVAWIN", "java")        #Windows java
 M_IS_OCTAVE = False      #treat .m as octave
 MCRPATH  = "~/MATLAB/R2021a" #path to local Ubunta Matlab Compiler Runtime
-DOCKEREXE = os.environ.get("DOCKEREXE", "docker")#default to docker, allow env override
+DOCKEREXE = "sudo docker"#assume simple docker install
 DOCKEREPO = "markgarnold"#where pulls come from 3/28/21
 INDIRNAME = ":/in"
 OUTDIRNAME = ":/out"
@@ -226,10 +222,6 @@ if os.path.exists(CONCOREPATH+"/concore.tools"):
     MATLABWIN = _tools.get("MATLABWIN", MATLABWIN)
     OCTAVEEXE = _tools.get("OCTAVEEXE", OCTAVEEXE)
     OCTAVEWIN = _tools.get("OCTAVEWIN", OCTAVEWIN)
-    JAVACEXE  = _tools.get("JAVACEXE", JAVACEXE)
-    JAVACWIN  = _tools.get("JAVACWIN", JAVACWIN)
-    JAVAEXE   = _tools.get("JAVAEXE", JAVAEXE)
-    JAVAWIN   = _tools.get("JAVAWIN", JAVAWIN)
 
 prefixedgenode = ""
 sourcedir = os.path.abspath(sys.argv[2])
@@ -642,16 +634,6 @@ if 'v' in required_langs:
         fcopy.write(fsource.read())
     fsource.close()
 
-if 'java' in required_langs and concoretype != "docker":
-    try:
-        fsource = open(CONCOREPATH+"/concore.java")
-    except (FileNotFoundError, IOError):
-        print(CONCOREPATH+" is not correct path to concore (missing Java files)")
-        quit()
-    with open(outdir+"/src/concore.java","w") as fcopy:
-        fcopy.write(fsource.read())
-    fsource.close()
-
 if 'm' in required_langs:
     try:
         fsource = open(CONCOREPATH+"/concore_default_maxtime.m")
@@ -887,8 +869,8 @@ if (concoretype=="docker"):
     fmaxtime.write('#!/bin/bash' + "\n")
     fmaxtime.write('echo "$1" >concore.maxtime\n')
     fmaxtime.write('echo "FROM alpine:3.8" > Dockerfile\n')
-    fmaxtime.write(f'{DOCKEREXE} build -t docker-concore .\n')
-    fmaxtime.write(f'{DOCKEREXE} run --name=concore')
+    fmaxtime.write('sudo docker build -t docker-concore .\n')
+    fmaxtime.write('sudo docker run --name=concore')
     # -v VCZ:/VCZ -v VPZ:/VPZ 
     i=0 #  9/12/21
     for node in nodes_dict:
@@ -914,15 +896,15 @@ if (concoretype=="docker"):
             dockername = sourcecode.rsplit(".", 1)[0] #3/28/21
             writeedges = volswr[i]
             while writeedges.find(":") != -1: 
-                fmaxtime.write(f'{DOCKEREXE} cp concore.maxtime concore:/')
+                fmaxtime.write('sudo docker cp concore.maxtime concore:/')
                 # escape destination path in docker cp
                 vol_path = writeedges.split(":")[0].split("-v ")[1].strip()
                 fmaxtime.write(shlex.quote(vol_path+"/concore.maxtime")+"\n")
                 writeedges = writeedges[writeedges.find(":")+1:]
         i=i+1
-    fmaxtime.write(f'{DOCKEREXE} stop concore \n')
-    fmaxtime.write(f'{DOCKEREXE} rm concore\n')
-    fmaxtime.write(f'{DOCKEREXE} rmi docker-concore\n')
+    fmaxtime.write('sudo docker stop concore \n')
+    fmaxtime.write('sudo docker rm concore\n')
+    fmaxtime.write('sudo docker rmi docker-concore\n')
     fmaxtime.write('rm Dockerfile\n')
     fmaxtime.write('rm concore.maxtime\n')
     fmaxtime.close()
@@ -930,8 +912,8 @@ if (concoretype=="docker"):
     fparams.write('#!/bin/bash' + "\n")
     fparams.write('echo "$1" >concore.params\n')
     fparams.write('echo "FROM alpine:3.8" > Dockerfile\n')
-    fparams.write(f'{DOCKEREXE} build -t docker-concore .\n')
-    fparams.write(f'{DOCKEREXE} run --name=concore')
+    fparams.write('sudo docker build -t docker-concore .\n')
+    fparams.write('sudo docker run --name=concore')
     # -v VCZ:/VCZ -v VPZ:/VPZ 
     i=0 #  9/12/21
     for node in nodes_dict:
@@ -957,23 +939,23 @@ if (concoretype=="docker"):
             dockername = sourcecode.rsplit(".", 1)[0] #3/28/21
             writeedges = volswr[i]
             while writeedges.find(":") != -1: 
-                fparams.write(f'{DOCKEREXE} cp concore.params concore:/')
+                fparams.write('sudo docker cp concore.params concore:/')
                 # escape destination path
                 vol_path = writeedges.split(":")[0].split("-v ")[1].strip()
                 fparams.write(shlex.quote(vol_path+"/concore.params")+"\n")
                 writeedges = writeedges[writeedges.find(":")+1:]
         i=i+1
-    fparams.write(f'{DOCKEREXE} stop concore \n')
-    fparams.write(f'{DOCKEREXE} rm concore\n')
-    fparams.write(f'{DOCKEREXE} rmi docker-concore\n')
+    fparams.write('sudo docker stop concore \n')
+    fparams.write('sudo docker rm concore\n')
+    fparams.write('sudo docker rmi docker-concore\n')
     fparams.write('rm Dockerfile\n')
     fparams.write('rm concore.params\n')
     fparams.close()
 
     funlock.write('#!/bin/bash' + "\n")
     funlock.write('echo "FROM alpine:3.8" > Dockerfile\n')
-    funlock.write(f'{DOCKEREXE} build -t docker-concore .\n')
-    funlock.write(f'{DOCKEREXE} run --name=concore')
+    funlock.write('sudo docker build -t docker-concore .\n')
+    funlock.write('sudo docker run --name=concore')
     # -v VCZ:/VCZ -v VPZ:/VPZ 
     i=0 #  9/12/21
     for node in nodes_dict:
@@ -999,15 +981,15 @@ if (concoretype=="docker"):
             dockername = sourcecode.rsplit(".", 1)[0] #3/28/21
             writeedges = volswr[i]
             while writeedges.find(":") != -1: 
-                funlock.write(f'{DOCKEREXE} cp ~/concore.apikey concore:/')
+                funlock.write('sudo docker cp ~/concore.apikey concore:/')
                 # escape destination path
                 vol_path = writeedges.split(":")[0].split("-v ")[1].strip()
                 funlock.write(shlex.quote(vol_path+"/concore.apikey")+"\n")
                 writeedges = writeedges[writeedges.find(":")+1:]
         i=i+1
-    funlock.write(f'{DOCKEREXE} stop concore \n')
-    funlock.write(f'{DOCKEREXE} rm concore\n')
-    funlock.write(f'{DOCKEREXE} rmi docker-concore\n')
+    funlock.write('sudo docker stop concore \n')
+    funlock.write('sudo docker rm concore\n')
+    funlock.write('sudo docker rmi docker-concore\n')
     funlock.write('rm Dockerfile\n')
     funlock.close()
 
@@ -1064,8 +1046,6 @@ for node in nodes_dict:
             elif langext == "v":
  # 6/25/21
                 fbuild.write("copy .\\src\\concore.v .\\" + containername + "\\concore.v\n")
-            elif langext == "java":
-                fbuild.write("copy .\\src\\concore.java .\\" + containername + "\\concore.java\n")
             elif langext == "m":   #  4/2/21
                 fbuild.write("copy .\\src\\concore_*.m .\\" + containername + "\\\n")
                 fbuild.write("copy .\\src\\import_concore.m .\\" + containername + "\\\n")
@@ -1083,8 +1063,6 @@ for node in nodes_dict:
                 fbuild.write("cp ./src/concore.hpp ./"+containername+"/concore.hpp\n")
             elif langext == "v":
                 fbuild.write("cp ./src/concore.v ./"+containername+"/concore.v\n")
-            elif langext == "java":
-                fbuild.write("cp ./src/concore.java ./"+containername+"/concore.java\n")
             elif langext == "m":  # 4/2/21
                 fbuild.write("cp ./src/concore_*.m ./"+containername+"/\n")
                 fbuild.write("cp ./src/import_concore.m ./"+containername+"/\n")
@@ -1143,7 +1121,7 @@ for node in nodes_dict:
   containername,sourcecode = nodes_dict[node].split(':')
   if len(sourcecode)!=0:
       dockername,langext = sourcecode.rsplit(".", 1)
-      if not (langext in ["py","m","sh","cpp","v","java"]): # 6/22/21
+      if not (langext in ["py","m","sh","cpp","v"]): # 6/22/21
           logging.error(f"Extension .{langext} is unsupported")
           quit()
       if concoretype=="windows":
@@ -1175,16 +1153,6 @@ for node in nodes_dict:
               fdebug.write('cd ..\n')
               fdebug.write('start /D '+q_container+' cmd /K vvp a.out\n')
               #fdebug.write('start /D '+containername+' cmd /K "'+CPPWIN+' '+sourcecode+'|a"\n')
-          elif langext=="java":
-              javaclass = os.path.splitext(os.path.basename(sourcecode))[0]
-              frun.write('cd '+q_container+'\n')
-              frun.write(JAVACWIN+' '+q_source+'\n')
-              frun.write('cd ..\n')
-              frun.write('start /B /D '+q_container+' cmd /c '+JAVAWIN+' -cp .;..\\src\\jeromq.jar '+javaclass+' >'+q_container+'\\concoreout.txt\n')
-              fdebug.write('cd '+q_container+'\n')
-              fdebug.write(JAVACWIN+' '+q_source+'\n')
-              fdebug.write('cd ..\n')
-              fdebug.write('start /D '+q_container+' cmd /K '+JAVAWIN+' -cp .;..\\src\\jeromq.jar '+javaclass+'\n')
           elif langext=="m":  #3/23/21
               # Use q_source in Windows commands to ensure quoting consistency
               if M_IS_OCTAVE:   
@@ -1225,17 +1193,6 @@ for node in nodes_dict:
                 else:
                     fdebug.write('concorewd="$(pwd)"\n')
                     fdebug.write('osascript -e "tell application \\"Terminal\\" to do script \\"cd \\\\\\"$concorewd/' + safe_container + '\\\\\\"; ' + VEXE + ' ' + safe_source + '; vvp a.out\\"" \n')
-
-            elif langext == "java":
-                javaclass = os.path.splitext(os.path.basename(sourcecode))[0]
-                safe_javaclass = shlex.quote(javaclass)
-                frun.write('(cd ' + safe_container + '; ' + JAVACEXE + ' ' + safe_source + '; ' + JAVAEXE + ' -cp .:../src/jeromq.jar ' + safe_javaclass + ' >concoreout.txt & echo $! >concorepid) &\n')
-                if ubuntu:
-                    fdebug.write('concorewd="$(pwd)"\n')
-                    fdebug.write('xterm -e bash -c "cd \\"$concorewd/' + safe_container + '\\"; ' + JAVACEXE + ' ' + safe_source + '; ' + JAVAEXE + ' -cp .:../src/jeromq.jar ' + safe_javaclass + '; bash" &\n')
-                else:
-                    fdebug.write('concorewd="$(pwd)"\n')
-                    fdebug.write('osascript -e "tell application \\"Terminal\\" to do script \\"cd \\\\\\"$concorewd/' + safe_container + '\\\\\\\"; ' + JAVACEXE + ' ' + safe_source + '; ' + JAVAEXE + ' -cp .:../src/jeromq.jar ' + safe_javaclass + '\\"" \n')
 
             elif langext == "sh":   # 5/19/21
                 # FIX: Escape MCRPATH to prevent shell injection
